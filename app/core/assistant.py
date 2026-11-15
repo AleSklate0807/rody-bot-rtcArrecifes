@@ -6,9 +6,9 @@ y retorna la respuesta final.
 """
 import logging
 
-from app.models.socio import Socio
-from app.core.memory import get_or_create_conversation, get_context_messages, save_turn
+from app.core.memory import get_context_messages, get_or_create_conversation, save_turn
 from app.core.prompt_builder import build_prompt
+from app.models.socio import Socio
 from app.services.gemini import GeminiRateLimitError, generate_response
 
 logger = logging.getLogger(__name__)

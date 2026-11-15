@@ -8,11 +8,11 @@ Así el prompt siempre lleva: resumen acumulado + últimos turnos, sin
 superposición y sin regenerar el resumen en cada mensaje.
 """
 import logging
-from typing import Optional
 from uuid import UUID
 
 from app.config.settings import settings
 from app.models.conversacion import Conversacion, Mensaje
+from app.services.gemini import generate_summary
 from app.services.supabase_client import (
     close_conversation,
     create_conversation,
@@ -21,7 +21,6 @@ from app.services.supabase_client import (
     save_message,
     update_conversation,
 )
-from app.services.gemini import generate_summary
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +43,8 @@ async def save_turn(
     socio_id: UUID,
     user_text: str,
     assistant_text: str,
-    tokens_entrada: Optional[int] = None,
-    tokens_salida: Optional[int] = None,
+    tokens_entrada: int | None = None,
+    tokens_salida: int | None = None,
 ) -> None:
     """Guarda el turno completo y actualiza contadores; rota la conversación si corresponde."""
     await save_message(conversacion.id, socio_id, "user", user_text, tokens_entrada=tokens_entrada)

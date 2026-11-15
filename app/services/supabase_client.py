@@ -6,20 +6,19 @@ el event loop de FastAPI con operaciones sincrónicas del cliente de Supabase.
 """
 import asyncio
 import logging
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import UUID
 
-from supabase import create_client, Client
+from supabase import Client, create_client
 
 from app.config.settings import settings
-from app.models.socio import Socio
 from app.models.conversacion import Conversacion, Mensaje
+from app.models.socio import Socio
 
 logger = logging.getLogger(__name__)
 
 # Cliente singleton — se reutiliza entre invocaciones en el mismo contenedor
-_client: Optional[Client] = None
+_client: Client | None = None
 
 
 def _get_client() -> Client:
@@ -37,7 +36,7 @@ async def _run(func):
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 # ================================================================
@@ -46,8 +45,8 @@ def _now_iso() -> str:
 
 async def get_or_create_socio(
     telegram_id: int,
-    username: Optional[str] = None,
-    nombre_display: Optional[str] = None,
+    username: str | None = None,
+    nombre_display: str | None = None,
 ) -> tuple[Socio, bool]:
     """
     Busca un socio por telegram_id. Si no existe, lo crea.
@@ -95,7 +94,7 @@ async def get_or_create_socio(
     return Socio(**result.data[0]), True
 
 
-async def set_socio_activo(telegram_id: int, activo: bool) -> Optional[Socio]:
+async def set_socio_activo(telegram_id: int, activo: bool) -> Socio | None:
     """Habilita o deshabilita a un socio. Retorna None si no existe."""
     client = _get_client()
     result = await _run(
@@ -153,7 +152,7 @@ async def mark_update_processed(update_id: int) -> None:
 # CONVERSACIONES
 # ================================================================
 
-async def get_active_conversation(socio_id: UUID) -> Optional[Conversacion]:
+async def get_active_conversation(socio_id: UUID) -> Conversacion | None:
     """Retorna la conversación más reciente sin cerrar del socio, o None."""
     client = _get_client()
     result = await _run(
@@ -168,7 +167,7 @@ async def get_active_conversation(socio_id: UUID) -> Optional[Conversacion]:
     return Conversacion(**result.data[0]) if result.data else None
 
 
-async def create_conversation(socio_id: UUID, resumen: Optional[str] = None) -> Conversacion:
+async def create_conversation(socio_id: UUID, resumen: str | None = None) -> Conversacion:
     """Crea una nueva conversación, opcionalmente arrastrando el resumen de la anterior."""
     client = _get_client()
     data: dict = {"socio_id": str(socio_id)}
@@ -192,9 +191,9 @@ async def close_conversation(conversacion_id: UUID) -> None:
 
 async def update_conversation(
     conversacion_id: UUID,
-    resumen: Optional[str] = None,
-    total_turnos: Optional[int] = None,
-    tokens_usados: Optional[int] = None,
+    resumen: str | None = None,
+    total_turnos: int | None = None,
+    tokens_usados: int | None = None,
 ) -> None:
     """Actualiza campos de una conversación."""
     client = _get_client()
@@ -241,8 +240,8 @@ async def save_message(
     socio_id: UUID,
     rol: str,
     contenido: str,
-    tokens_entrada: Optional[int] = None,
-    tokens_salida: Optional[int] = None,
+    tokens_entrada: int | None = None,
+    tokens_salida: int | None = None,
 ) -> Mensaje:
     """Persiste un mensaje en la base de datos."""
     client = _get_client()

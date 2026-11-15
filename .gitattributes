@@ -1,0 +1,4 @@
+# Normalizar finales de línea en el repo (LF), sin importar el sistema operativo
+* text=auto eol=lf
+*.bat text eol=crlf
+*.pdf binary

@@ -4,12 +4,11 @@ Cliente de Telegram — envío de mensajes y acciones del bot.
 Usa httpx para hacer llamadas directas a la Bot API de Telegram.
 """
 import logging
-from typing import Optional
 
 import httpx
 
-from app.services.telegram_format import format_model_output, html_to_plain, split_message
 from app.config.settings import settings
+from app.services.telegram_format import format_model_output, html_to_plain, split_message
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ async def _post(method: str, payload: dict) -> httpx.Response:
 async def send_message(
     chat_id: int,
     text: str,
-    reply_to_message_id: Optional[int] = None,
+    reply_to_message_id: int | None = None,
 ) -> bool:
     """
     Envía un mensaje HTML. Si Telegram rechaza el HTML (400), reintenta
@@ -54,7 +53,7 @@ async def send_message(
     return False
 
 
-async def send_reply(chat_id: int, model_text: str, reply_to_message_id: Optional[int] = None) -> bool:
+async def send_reply(chat_id: int, model_text: str, reply_to_message_id: int | None = None) -> bool:
     """Envía una respuesta generada por el modelo: la sanitiza y la divide si es larga."""
     ok = True
     for i, chunk in enumerate(split_message(model_text)):

@@ -9,19 +9,19 @@ Rutas:
   GET  /api/webhook → Health check (para pings de monitoreo)
   GET  /health      → Alias del health check (configurado en vercel.json)
 """
-import sys
-import os
 import logging
+import os
+import sys
 
 # Asegurar que el directorio raíz del proyecto esté en el path de Python.
 # Necesario para que Vercel pueda importar los módulos de 'app/'.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from app.config.settings import settings
 from app.bot.dispatcher import dispatch
+from app.config.settings import settings
 from app.services.supabase_client import is_update_processed, mark_update_processed
 
 # ---- Configuración de logging ----

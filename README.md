@@ -46,6 +46,36 @@ rody-bot/
 └── .github/workflows/      # GitHub Actions (keep-alive y limpieza de Supabase)
 ```
 
+## Arquitectura
+
+```mermaid
+flowchart LR
+    U([Socio en Telegram]) -->|mensaje| TG[Telegram Bot API]
+    TG -->|webhook + secret| V["Vercel Function<br/>FastAPI"]
+    V --> D{Dispatcher}
+    D -->|comandos| H[Handlers]
+    D -->|texto| A[Asistente]
+    A <-->|historial y resumen| DB[(Supabase<br/>PostgreSQL)]
+    A <-->|prompt| G[Gemini]
+    A -->|respuesta| TG
+```
+
+**Flujo de un mensaje:**
+
+1. Telegram envía el update al webhook; se valida el header `X-Telegram-Bot-Api-Secret-Token`.
+2. Se descartan updates duplicados (idempotencia por `update_id`).
+3. Se identifica al socio y se verifica que esté habilitado.
+4. Se arma el prompt: instrucciones de Rody + resumen acumulado + últimos turnos.
+5. Gemini genera la respuesta, que se sanitiza para el HTML de Telegram y se envía.
+6. El turno se guarda; cada 15 turnos la conversación se resume y se rota.
+
+**Decisiones de diseño:**
+
+- **Serverless sin estado:** todo el estado vive en Supabase, así que cada invocación es independiente.
+- **Seguridad:** RLS activo en todas las tablas; solo el backend (service role) accede a los datos.
+- **Acceso por aprobación:** evita que terceros consuman la cuota de la IA.
+- **Costo cero:** todos los servicios usan su plan gratuito.
+
 ## Setup inicial
 
 ### 1. Clonar el repositorio
@@ -131,5 +161,5 @@ y avisa a los admins. Comandos de admin:
 
 ## Licencia
 
-Proyecto sin fines de lucro — Rotaract Club Arrecifes, Argentina.
+Distribuido bajo licencia [MIT](LICENSE). Proyecto sin fines de lucro de Rotaract Club Arrecifes, Argentina.
 

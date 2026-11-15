@@ -1,7 +1,8 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional, Literal
+from typing import Literal
 from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class Conversacion(BaseModel):
@@ -9,8 +10,8 @@ class Conversacion(BaseModel):
     id: UUID
     socio_id: UUID
     iniciada_en: datetime
-    cerrada_en: Optional[datetime] = None
-    resumen: Optional[str] = None       # Resumen comprimido por Gemini
+    cerrada_en: datetime | None = None
+    resumen: str | None = None       # Resumen comprimido por Gemini
     total_turnos: int = 0
     tokens_usados: int = 0
 
@@ -22,8 +23,8 @@ class Mensaje(BaseModel):
     socio_id: UUID
     rol: Literal["user", "assistant", "system"]
     contenido: str
-    tokens_entrada: Optional[int] = None
-    tokens_salida: Optional[int] = None
+    tokens_entrada: int | None = None
+    tokens_salida: int | None = None
     creado_en: datetime
 
 
@@ -33,6 +34,6 @@ class MensajeInput(BaseModel):
     socio_id: UUID
     rol: Literal["user", "assistant", "system"]
     contenido: str
-    tokens_entrada: Optional[int] = None
-    tokens_salida: Optional[int] = None
+    tokens_entrada: int | None = None
+    tokens_salida: int | None = None
 

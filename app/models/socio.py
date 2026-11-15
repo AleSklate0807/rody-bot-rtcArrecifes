@@ -1,19 +1,19 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class Socio(BaseModel):
     """Representa un socio del club identificado por su Telegram ID."""
     id: UUID
     telegram_id: int
-    username: Optional[str] = None
-    nombre_display: Optional[str] = None
+    username: str | None = None
+    nombre_display: str | None = None
     es_admin: bool = False
     activo: bool = True
     creado_en: datetime
-    ultimo_acceso: Optional[datetime] = None
+    ultimo_acceso: datetime | None = None
 
     @property
     def nombre(self) -> str:

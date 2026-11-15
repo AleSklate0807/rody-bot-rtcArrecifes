@@ -8,8 +8,8 @@ import html
 
 from google.genai import types
 
-from app.models.socio import Socio
 from app.models.conversacion import Conversacion, Mensaje
+from app.models.socio import Socio
 
 # ================================================================
 # SYSTEM PROMPT PRINCIPAL

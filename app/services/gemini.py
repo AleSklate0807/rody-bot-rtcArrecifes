@@ -6,7 +6,6 @@ rate limiting (429) y errores transitorios del servidor (5xx).
 """
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 from google import genai
 from google.genai import errors, types
@@ -32,8 +31,8 @@ class GeminiRateLimitError(Exception):
 @dataclass
 class GeminiResult:
     text: str
-    tokens_entrada: Optional[int] = None
-    tokens_salida: Optional[int] = None
+    tokens_entrada: int | None = None
+    tokens_salida: int | None = None
 
 
 def _is_retryable(exc: BaseException) -> bool:
@@ -51,7 +50,7 @@ def _is_retryable(exc: BaseException) -> bool:
 )
 async def _generate(
     contents: str | list[types.Content],
-    system_instruction: Optional[str],
+    system_instruction: str | None,
     temperature: float,
 ) -> types.GenerateContentResponse:
     return await _client.aio.models.generate_content(
@@ -67,7 +66,7 @@ async def _generate(
 
 async def generate_response(
     contents: str | list[types.Content],
-    system_instruction: Optional[str] = None,
+    system_instruction: str | None = None,
     temperature: float = 0.7,
 ) -> GeminiResult:
     """
@@ -97,7 +96,7 @@ async def generate_response(
     )
 
 
-async def generate_summary(conversation_text: str, resumen_previo: Optional[str] = None) -> str:
+async def generate_summary(conversation_text: str, resumen_previo: str | None = None) -> str:
     """Genera un resumen comprimido de una conversación larga."""
     previo = (
         f"RESUMEN DE LO CONVERSADO ANTES:\n{resumen_previo}\n\n" if resumen_previo else ""

@@ -1,11 +1,11 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from app.core.prompt_builder import build_prompt, build_welcome_message
 from app.models.conversacion import Conversacion, Mensaje
 from app.models.socio import Socio
 
-NOW = datetime.now(timezone.utc)
+NOW = datetime.now(UTC)
 
 
 def _socio(**kw):
@@ -13,7 +13,14 @@ def _socio(**kw):
 
 
 def _msg(conv, rol, txt):
-    return Mensaje(id=uuid4(), conversacion_id=conv.id, socio_id=conv.socio_id, rol=rol, contenido=txt, creado_en=NOW)
+    return Mensaje(
+        id=uuid4(),
+        conversacion_id=conv.id,
+        socio_id=conv.socio_id,
+        rol=rol,
+        contenido=txt,
+        creado_en=NOW,
+    )
 
 
 def test_build_prompt_roles_y_resumen():

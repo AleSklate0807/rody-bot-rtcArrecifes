@@ -6,7 +6,6 @@ del núcleo del asistente.
 """
 import html
 import logging
-from typing import Optional
 
 from app.config.settings import settings
 from app.core.assistant import process_message
@@ -25,9 +24,9 @@ logger = logging.getLogger(__name__)
 async def _identify(
     chat_id: int,
     telegram_id: int,
-    username: Optional[str],
-    first_name: Optional[str],
-) -> Optional[Socio]:
+    username: str | None,
+    first_name: str | None,
+) -> Socio | None:
     """
     Registra o recupera al socio. Si no está habilitado, le avisa (y a los
     admins, si es nuevo) y retorna None.
@@ -70,9 +69,9 @@ async def handle_message(
     chat_id: int,
     telegram_id: int,
     text: str,
-    username: Optional[str] = None,
-    first_name: Optional[str] = None,
-    message_id: Optional[int] = None,
+    username: str | None = None,
+    first_name: str | None = None,
+    message_id: int | None = None,
 ) -> None:
     """Procesa un mensaje de texto y envía la respuesta del asistente."""
     socio = await _identify(chat_id, telegram_id, username, first_name)
@@ -93,8 +92,8 @@ async def handle_message(
 async def handle_start(
     chat_id: int,
     telegram_id: int,
-    username: Optional[str] = None,
-    first_name: Optional[str] = None,
+    username: str | None = None,
+    first_name: str | None = None,
 ) -> None:
     """Comando /start: registra al socio y envía la bienvenida."""
     socio = await _identify(chat_id, telegram_id, username, first_name)
