@@ -187,13 +187,6 @@ y avisa a los admins. Comandos de admin:
 - `/aprobar <telegram_id>` — habilitar a un socio
 - `/bloquear <telegram_id>` — deshabilitar a un socio
 
-## Fases de desarrollo
-
-- [x] **Fase 1:** MVP conversacional con memoria individual por socio
-- [x] **Fase 2:** RAG con documentación institucional (PDFs)
-- [ ] **Fase 3:** Datos del club (socios, proyectos, eventos)
-- [ ] **Fase 4:** Asistente operativo (actas, planificación)
-
 ## Licencia
 
 Distribuido bajo licencia [MIT](LICENSE). Proyecto sin fines de lucro de Rotaract Club Arrecifes, Argentina.
