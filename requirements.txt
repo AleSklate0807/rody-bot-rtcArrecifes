@@ -1,0 +1,22 @@
+# Web framework (Vercel serverless)
+fastapi>=0.115.0
+
+# Google AI (Gemini) — SDK oficial actual
+google-genai>=1.0.0
+
+# Supabase
+supabase>=2.3.0
+
+# Validación de datos y configuración
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# HTTP client async (usado internamente por FastAPI y servicios)
+httpx>=0.27.0
+
+# Reintentos con backoff exponencial
+tenacity>=9.0.0
+
+# Parsing de form data y requests (FastAPI dependency)
+python-multipart>=0.0.9
+

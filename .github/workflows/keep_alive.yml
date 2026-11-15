@@ -1,0 +1,50 @@
+name: Keep Supabase Alive
+
+# Ejecuta una query simple cada 6 días para evitar que Supabase
+# pause el proyecto por inactividad (el límite es 7 días).
+
+on:
+  schedule:
+    # Cron: cada 6 días a las 10:00 UTC
+    - cron: '0 10 */6 * *'
+  workflow_dispatch:  # También permite ejecutarlo manualmente
+
+jobs:
+  ping:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Query Supabase REST API
+        run: |
+          echo "🔄 Enviando ping a Supabase..."
+
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/socios?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}")
+
+          echo "📡 HTTP Status: $RESPONSE"
+
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Supabase está activo y respondiendo correctamente"
+          else
+            echo "❌ Error: Supabase respondió con status $RESPONSE"
+            exit 1
+          fi
+
+      - name: Limpiar updates procesados viejos
+        run: |
+          curl -s -f -X POST \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/limpiar_updates_viejos" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/json" -d '{}' \
+            && echo "🧹 Limpieza ejecutada"
+
+      - name: Log timestamp
+        run: |
+          echo "🕐 Ping ejecutado el: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+

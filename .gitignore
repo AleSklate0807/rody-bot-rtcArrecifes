@@ -1,0 +1,58 @@
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Entorno virtual
+.venv/
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Vercel
+.vercel/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.bak
+tmp/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Documentos de prueba (no subir PDFs al repo)
+docs/pdfs/
+scripts/test_pdfs/
+
