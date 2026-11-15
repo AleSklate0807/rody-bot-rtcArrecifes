@@ -15,18 +15,22 @@ from app.models.socio import Socio
 # ================================================================
 # SYSTEM PROMPT PRINCIPAL
 # ================================================================
-SYSTEM_PROMPT = """Sos Rody, el asistente virtual de Rotaract Club Arrecifes, Argentina.
+SYSTEM_PROMPT = """Sos Rody, la mascota de Rotaract Club Arrecifes, Argentina: un zorrito piloto.
+Sos piloto porque Arrecifes es la "Cuna de Campeones" del automovilismo argentino.
 
 PERSONALIDAD:
 - Hablás de forma amigable y cercana, usando voseo (vos, tenés, podés).
-- Sos entusiasta con los valores de Rotaract: servicio, liderazgo y amistad.
+- Sabés muchísimo de Rotary y Rotaract, y sos entusiasta con sus valores:
+  servicio, liderazgo y amistad.
+- De vez en cuando usás alguna referencia a las carreras o al automovilismo
+  (🏁, "a fondo", "en boxes"), sin abusar: la información va primero.
 - Cuando no sabés algo, lo decís con honestidad en lugar de inventar.
 - Usás emojis moderadamente para hacer las respuestas más amenas.
 
 FUNCIONES PRINCIPALES:
-- Responder preguntas sobre Rotary y Rotaract International.
-- Ayudar con consultas sobre el funcionamiento del club.
-- Asistir en tareas operativas: redacción, planificación, organización.
+- Responder preguntas sobre Rotary, Rotaract y La Fundación Rotaria.
+- Responder sobre el club: comisión directiva, comités, proyectos y reglamento interno.
+- Responder sobre el Distrito 4895: su reglamento, reuniones y eventos distritales.
 - Orientar sobre valores de liderazgo y servicio comunitario.
 
 DOCUMENTACIÓN DEL CLUB:
@@ -96,16 +100,30 @@ def build_prompt(
     return "\n".join(system_parts), contents
 
 
+# Temas sobre los que Rody puede responder (según los documentos cargados).
+# Se muestran en la bienvenida y en /ayuda.
+TEMAS = (
+    "- 🏠 <b>El club</b>: comisión directiva, comités y proyectos como "
+    "Navidad con Papá Noel o los Colilleros Urbanos\n"
+    "- 📋 <b>El reglamento interno</b>: cómo hacerse socio, asistencia, cuotas, "
+    "licencias y elección del presidente\n"
+    "- 🗺️ <b>El Distrito 4895</b>: reuniones de presidentes, eventos distritales "
+    "y cómo se organizan\n"
+    "- 🌍 <b>La Fundación Rotaria</b>: subvenciones, PolioPlus y reconocimientos "
+    "como el Paul Harris\n"
+    "- 📖 <b>La historia de Rotary y Rotaract</b>: desde Paul Harris hasta "
+    "Luis Vicente Giay, el arrecifeño que presidió Rotary International\n"
+)
+
+
 def build_welcome_message(socio: Socio) -> str:
     """Genera el mensaje de bienvenida (HTML) para /start."""
     return (
-        f"¡Hola, {html.escape(socio.nombre)}! 👋\n\n"
-        f"Soy <b>Rody</b>, el asistente virtual de <b>Rotaract Club Arrecifes</b>. "
-        f"Estoy acá para ayudarte con consultas sobre el club, Rotaract y lo que necesites.\n\n"
-        f"Podés preguntarme sobre:\n"
-        f"- 📋 El funcionamiento de Rotaract\n"
-        f"- 🏛️ Los valores y principios de nuestra organización\n"
-        f"- 📅 Proyectos y actividades del club\n"
-        f"- ✍️ Redacción de documentos y actas\n\n"
-        f"¿En qué te puedo ayudar hoy?"
+        f"¡Hola, {html.escape(socio.nombre)}! 🦊🏁\n\n"
+        f"Soy <b>Rody</b>, el zorrito piloto y mascota de <b>Rotaract Club Arrecifes</b>. "
+        f"Vengo de la Cuna de Campeones y sé un montón de Rotary y Rotaract, "
+        f"así que acelero a fondo para responderte.\n\n"
+        f"<b>Podés preguntarme sobre:</b>\n"
+        f"{TEMAS}\n"
+        f"¿Arrancamos? Escribime tu pregunta 🏎️"
     )

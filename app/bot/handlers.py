@@ -9,7 +9,7 @@ import logging
 
 from app.config.settings import settings
 from app.core.assistant import process_message
-from app.core.prompt_builder import build_welcome_message
+from app.core.prompt_builder import TEMAS, build_welcome_message
 from app.models.socio import Socio
 from app.services.supabase_client import (
     get_or_create_socio,
@@ -46,7 +46,7 @@ async def _identify(
 
     await send_message(
         chat_id,
-        "👋 ¡Hola! Soy <b>Rody</b>, el asistente de Rotaract Club Arrecifes.\n\n"
+        "🦊 ¡Hola! Soy <b>Rody</b>, el zorrito piloto y mascota de Rotaract Club Arrecifes.\n\n"
         "Tu acceso todavía no fue aprobado. Ya le avisé a la gente del club; "
         "en cuanto te habiliten vas a poder usarme.\n\n"
         f"Tu ID de Telegram es <code>{telegram_id}</code>.",
@@ -105,11 +105,9 @@ async def handle_start(
 async def handle_help(chat_id: int, telegram_id: int) -> None:
     """Comando /ayuda."""
     help_text = (
-        "🤖 <b>Rody — Asistente de Rotaract Club Arrecifes</b>\n\n"
-        "<b>¿Qué puedo hacer por vos?</b>\n"
-        "- Responder preguntas sobre Rotaract y Rotary\n"
-        "- Ayudarte a redactar actas y proyectos\n"
-        "- Orientarte sobre el funcionamiento del club\n\n"
+        "🦊 <b>Rody — la mascota de Rotaract Club Arrecifes</b>\n\n"
+        "<b>Podés preguntarme sobre:</b>\n"
+        f"{TEMAS}\n"
         "<b>Comandos disponibles:</b>\n"
         "/start — Reiniciar el asistente\n"
         "/ayuda — Ver este mensaje\n"
