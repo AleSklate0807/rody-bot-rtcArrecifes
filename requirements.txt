@@ -1,3 +1,5 @@
+# Mantener sincronizado con [project.dependencies] de pyproject.toml
+
 # Web framework (Vercel serverless)
 fastapi>=0.115.0
 
