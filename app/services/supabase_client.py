@@ -13,6 +13,7 @@ from supabase import Client, create_client
 
 from app.config.settings import settings
 from app.models.conversacion import Conversacion, Mensaje
+from app.models.documento import FragmentoRelevante
 from app.models.socio import Socio
 
 logger = logging.getLogger(__name__)
@@ -258,3 +259,43 @@ async def save_message(
 
     result = await _run(lambda: client.table("mensajes").insert(data).execute())
     return Mensaje(**result.data[0])
+
+
+# ================================================================
+# DOCUMENTOS (RAG)
+# ================================================================
+
+async def search_fragmentos(
+    embedding: list[float],
+    limite: int = 5,
+    similitud_minima: float = 0.6,
+) -> list[FragmentoRelevante]:
+    """Fragmentos de documentos más similares al embedding de la consulta."""
+    client = _get_client()
+    vector = "[" + ",".join(f"{v:.7f}" for v in embedding) + "]"
+    result = await _run(
+        lambda: client.rpc(
+            "match_fragmentos",
+            {"query_embedding": vector, "match_count": limite, "min_similarity": similitud_minima},
+        ).execute()
+    )
+    return [FragmentoRelevante(**f) for f in result.data or []]
+
+
+async def get_textos_documentos(titulos: list[str]) -> dict[str, list[str]]:
+    """Fragmentos (en orden) de los documentos indicados, agrupados por título."""
+    client = _get_client()
+    docs = await _run(
+        lambda: client.table("documentos").select("id, titulo").in_("titulo", titulos).execute()
+    )
+    resultado: dict[str, list[str]] = {}
+    for doc in docs.data or []:
+        frags = await _run(
+            lambda d=doc: client.table("documento_fragmentos")
+            .select("contenido")
+            .eq("documento_id", d["id"])
+            .order("orden")
+            .execute()
+        )
+        resultado[doc["titulo"]] = [f["contenido"] for f in frags.data or []]
+    return resultado

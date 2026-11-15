@@ -8,6 +8,7 @@ import logging
 
 from app.core.memory import get_context_messages, get_or_create_conversation, save_turn
 from app.core.prompt_builder import build_prompt
+from app.core.retrieval import buscar_contexto, obtener_documentos_fijos
 from app.models.socio import Socio
 from app.services.gemini import GeminiRateLimitError, generate_response
 
@@ -29,20 +30,25 @@ async def process_message(socio: Socio, text: str) -> str:
     Flujo:
     1. Obtener/crear conversación activa
     2. Recuperar historial reciente
-    3. Construir prompt (system + historial)
-    4. Llamar a Gemini
-    5. Persistir el turno
+    3. Buscar fragmentos relevantes en los documentos del club (RAG)
+    4. Construir prompt (system + documentos + historial)
+    5. Llamar a Gemini
+    6. Persistir el turno
     """
     logger.info(f"Procesando mensaje de socio {socio.telegram_id} ({len(text)} chars)")
 
     conversacion = await get_or_create_conversation(socio.id)
     mensajes_recientes = await get_context_messages(conversacion)
+    fragmentos = await buscar_contexto(text, mensajes_recientes)
+    documentos_fijos = await obtener_documentos_fijos()
 
     system_instruction, contents = build_prompt(
         socio=socio,
         conversacion=conversacion,
         mensajes_recientes=mensajes_recientes,
         pregunta_actual=text,
+        fragmentos=fragmentos,
+        documentos_fijos=documentos_fijos,
     )
 
     try:

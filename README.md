@@ -61,7 +61,7 @@ flowchart LR
     V --> D{Dispatcher}
     D -->|comandos| H[Handlers]
     D -->|texto| A[Asistente]
-    A <-->|historial y resumen| DB[(Supabase<br/>PostgreSQL)]
+    A <-->|historial, resumen y documentos| DB[(Supabase<br/>PostgreSQL + pgvector)]
     A <-->|prompt| G[Gemini]
     A -->|respuesta| TG
 ```
@@ -71,9 +71,10 @@ flowchart LR
 1. Telegram envía el update al webhook; se valida el header `X-Telegram-Bot-Api-Secret-Token`.
 2. Se descartan updates duplicados (idempotencia por `update_id`).
 3. Se identifica al socio y se verifica que esté habilitado.
-4. Se arma el prompt: instrucciones de Rody + resumen acumulado + últimos turnos.
-5. Gemini genera la respuesta, que se sanitiza para el HTML de Telegram y se envía.
-6. El turno se guarda; cada 15 turnos la conversación se resume y se rota.
+4. Se buscan en los documentos del club los fragmentos relevantes a la pregunta.
+5. Se arma el prompt: instrucciones de Rody + documentos + resumen acumulado + últimos turnos.
+6. Gemini genera la respuesta, que se sanitiza para el HTML de Telegram y se envía.
+7. El turno se guarda; cada 15 turnos la conversación se resume y se rota.
 
 **Decisiones de diseño:**
 
@@ -115,6 +116,7 @@ Ejecutar las migraciones **en orden** en el SQL Editor de Supabase:
 ```
 database/migrations/001_initial_schema.sql
 database/migrations/002_security_and_access.sql
+database/migrations/003_documentos_rag.sql
 ```
 
 ### 5. Desplegar en Vercel
@@ -149,6 +151,33 @@ pytest
 | `ADMIN_TELEGRAM_IDS` | IDs de Telegram de los admins, separados por coma | [@userinfobot](https://t.me/userinfobot) |
 | `ACCESO_ABIERTO` | `true` para no requerir aprobación (default `false`) | Opcional |
 
+## Documentación del club (RAG)
+
+Rody responde sobre reglamentos, el distrito y La Fundación Rotaria consultando
+los PDFs cargados, y cita la fuente (documento y página).
+
+1. Guardar los PDFs en `docs/pdfs/` (la carpeta está excluida de git). El nombre del
+   archivo es el título que Rody cita, así que conviene que sea descriptivo.
+2. Cargarlos:
+
+```bash
+python scripts/ingest_pdfs.py            # carga nuevos o modificados; saltea los que no cambiaron
+python scripts/ingest_pdfs.py --listar   # ver qué hay cargado
+python scripts/ingest_pdfs.py --borrar "Archivo.pdf"
+```
+
+Cada PDF se divide en fragmentos de ~1200 caracteres, se generan embeddings con
+`gemini-embedding-001` y se guardan en Supabase (pgvector). En cada mensaje se buscan
+los fragmentos más similares a la pregunta y se agregan al prompt.
+
+Los documentos cortos con datos centrales del club (comisión directiva, comités,
+proyectos) se configuran como **fijos** en `RAG_DOCUMENTOS_FIJOS` y van siempre
+completos en el prompt, porque la búsqueda semántica tiende a preferir los artículos
+de los reglamentos ante preguntas como "¿quién es el presidente?".
+
+> La cuota gratuita de Gemini permite 100 embeddings por minuto; el script de carga
+> se autorregula para no superarla.
+
 ## Control de acceso
 
 Los socios nuevos quedan **pendientes de aprobación**: el bot les responde con su ID
@@ -161,7 +190,7 @@ y avisa a los admins. Comandos de admin:
 ## Fases de desarrollo
 
 - [x] **Fase 1:** MVP conversacional con memoria individual por socio
-- [ ] **Fase 2:** RAG con documentación institucional (PDFs)
+- [x] **Fase 2:** RAG con documentación institucional (PDFs)
 - [ ] **Fase 3:** Datos del club (socios, proyectos, eventos)
 - [ ] **Fase 4:** Asistente operativo (actas, planificación)
 

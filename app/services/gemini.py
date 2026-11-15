@@ -96,6 +96,53 @@ async def generate_response(
     )
 
 
+# ================================================================
+# EMBEDDINGS (búsqueda semántica en documentos)
+# ================================================================
+
+EMBEDDING_MODEL = "gemini-embedding-001"
+EMBEDDING_DIM = 768  # debe coincidir con vector(768) de la migración 003
+
+
+@retry(
+    retry=retry_if_exception(_is_retryable),
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=15),
+    reraise=True,
+)
+async def embed_query(texto: str) -> list[float]:
+    """Embedding de una consulta del socio (para buscar en los documentos)."""
+    response = await _client.aio.models.embed_content(
+        model=EMBEDDING_MODEL,
+        contents=texto,
+        config=types.EmbedContentConfig(
+            task_type="RETRIEVAL_QUERY",
+            output_dimensionality=EMBEDDING_DIM,
+        ),
+    )
+    return list(response.embeddings[0].values)
+
+
+@retry(
+    retry=retry_if_exception(_is_retryable),
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=2, min=5, max=60),
+    reraise=True,
+)
+def embed_documents(textos: list[str], titulo: str | None = None) -> list[list[float]]:
+    """Embeddings de fragmentos de un documento (sincrónico, para el script de ingesta)."""
+    response = _client.models.embed_content(
+        model=EMBEDDING_MODEL,
+        contents=textos,
+        config=types.EmbedContentConfig(
+            task_type="RETRIEVAL_DOCUMENT",
+            title=titulo,
+            output_dimensionality=EMBEDDING_DIM,
+        ),
+    )
+    return [list(e.values) for e in response.embeddings]
+
+
 async def generate_summary(conversation_text: str, resumen_previo: str | None = None) -> str:
     """Genera un resumen comprimido de una conversación larga."""
     previo = (

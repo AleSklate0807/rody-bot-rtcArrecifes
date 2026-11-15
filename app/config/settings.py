@@ -39,9 +39,20 @@ class Settings(BaseSettings):
     MAX_RECENT_TURNS: int = 10          # Turnos recientes a incluir en el prompt
     SUMMARY_TRIGGER_TURNS: int = 15     # Turnos antes de resumir y rotar la conversación
 
+    # ---- Búsqueda en documentos (RAG) ----
+    RAG_TOP_K: int = 8                  # Fragmentos a incluir en el prompt
+    RAG_MIN_SIMILARITY: float = 0.62    # Similitud coseno mínima para considerar relevante
+    # Documentos cortos con datos centrales del club que van SIEMPRE completos en el
+    # prompt, en vez de depender de la búsqueda. Títulos separados por ";".
+    RAG_DOCUMENTOS_FIJOS: str = "Información de Rotaract Club Arrecifes"
+
     @property
     def log_level_int(self) -> int:
         return getattr(logging, self.LOG_LEVEL)
+
+    @property
+    def documentos_fijos(self) -> list[str]:
+        return [t.strip() for t in self.RAG_DOCUMENTOS_FIJOS.split(";") if t.strip()]
 
     @property
     def admin_ids(self) -> set[int]:
