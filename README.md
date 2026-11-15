@@ -1,5 +1,11 @@
 # 🤖 Rody — Asistente Virtual de Rotaract Club Arrecifes
 
+[![CI](https://github.com/AleSklate0807/rody-bot-rtcArrecifes/actions/workflows/ci.yml/badge.svg)](https://github.com/AleSklate0807/rody-bot-rtcArrecifes/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.13-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 > Bot de Telegram con IA para el asistente institucional de Rotaract Club Arrecifes, Argentina.  
 > Construido con Python · Vercel · Supabase · pgvector · Gemini Flash
 
@@ -30,7 +36,7 @@ Rody es un asistente virtual disponible 24/7 vía Telegram que permite a los soc
 ## Estructura del proyecto
 
 ```
-rody-bot/
+rody-bot-rtcArrecifes/
 ├── api/
 │   └── webhook.py          # Entry point de Vercel (webhook + health)
 ├── app/
@@ -81,8 +87,8 @@ flowchart LR
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/rody-bot.git
-cd rody-bot
+git clone https://github.com/AleSklate0807/rody-bot-rtcArrecifes.git
+cd rody-bot-rtcArrecifes
 ```
 
 ### 2. Crear entorno virtual e instalar dependencias
