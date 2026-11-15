@@ -160,7 +160,7 @@ y avisa a los admins. Comandos de admin:
 
 ## Fases de desarrollo
 
-- [ ] **Fase 1:** MVP conversacional con memoria individual por socio *(código listo, falta desplegar)*
+- [x] **Fase 1:** MVP conversacional con memoria individual por socio
 - [ ] **Fase 2:** RAG con documentación institucional (PDFs)
 - [ ] **Fase 3:** Datos del club (socios, proyectos, eventos)
 - [ ] **Fase 4:** Asistente operativo (actas, planificación)
